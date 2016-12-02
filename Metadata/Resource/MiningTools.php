@@ -67,9 +67,15 @@ trait MiningTools
      */
     protected function entityClassToResourceClass(\ReflectionClass $class)
     {
-        $path = strtr($this->resourceClassPath, '/', '\\');
+        if (0 === strpos($this->resourceClassPath, '/')) {
+            $path = strtr($this->resourceClassPath, '/', '\\');
+            $class = $path.'\\'.$class->getShortName().'Resource';
+        } else {
+            $path = strtr($this->resourceClassPath, '/', '\\');
+            $class = str_replace('Entity', $path, $class->getName()).'Resource';
+        }
 
-        return str_replace('Entity', $path, $class->getName()) . 'Resource';
+        return $class;
     }
 
     /**
