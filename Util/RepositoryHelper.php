@@ -10,11 +10,13 @@ namespace GoIntegro\Bundle\HateoasBundle\Util;
 // ORM.
 use Doctrine\ORM\EntityManagerInterface;
 // Paginadores
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 // Colecciones
 use GoIntegro\Bundle\HateoasBundle\Collections\PaginatedCollection;
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 
 class RepositoryHelper
 {
@@ -39,14 +41,15 @@ class RepositoryHelper
 
     /**
      * Helper method to paginate a query using the HATEOAS request parameters.
-     * @param Request\Params $request
+     * @param Params $request
      * @return PaginatedCollection
      */
-    public function findByRequestParams(Request\Params $params)
+    public function findByRequestParams(Params $params)
     {
         return $this->findPaginated(
             $params->primaryClass,
             $params->filters,
+            $params->sorting,
             $params->getPageOffset(),
             $params->getPageSize()
         );
@@ -63,8 +66,9 @@ class RepositoryHelper
     public function findPaginated(
         $entityClass,
         array $criteria,
-        $offset = Request\Params::DEFAULT_PAGE_OFFSET,
-        $limit = Request\Params::DEFAULT_PAGE_SIZE
+        array $sorting,
+        $offset = Params::DEFAULT_PAGE_OFFSET,
+        $limit = Params::DEFAULT_PAGE_SIZE
     )
     {
         $qb = $this->entityManager
@@ -72,6 +76,8 @@ class RepositoryHelper
             ->createQueryBuilder('e')
             ->setFirstResult($offset)
             ->setMaxResults($limit);
+
+        $this->applySorting($qb, $sorting, 'e');
 
         foreach ($this->filters as $filter) {
             if ($filter->supportsClass($entityClass)) {
@@ -93,5 +99,25 @@ class RepositoryHelper
     public function addFilter(Request\FilterInterface $filter)
     {
         $this->filters[] = $filter;
+    }
+
+    private function applySorting(QueryBuilder $qb, array $sorts, $alias = 'e')
+    {
+        foreach($sorts as $type => $sorting) {
+            foreach($sorting as $resourceName => $sort) {
+                foreach($sort as $field => $order) {
+                    if('association' == $type) {
+                        $namespace = $alias . '.' . $resourceName;
+                        $qb->leftJoin($namespace, $resourceName);
+                        $field = $resourceName . '.' . $field;
+                    } elseif ('field' == $type) {
+                        $field = $alias . '.' . $field;
+                    } else {
+                        break;
+                    }
+                    $qb->addOrderBy($field, $order);
+                }
+            }
+        }
     }
 }

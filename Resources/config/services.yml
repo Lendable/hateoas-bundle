@@ -9,6 +9,7 @@ services:
       # @todo Could we not just pass the request as a parameter?
       - "@hateoas.raml.finder"
       - "@hateoas.request_parser.filter"
+      - "@hateoas.request_parser.sorting"
       - "@hateoas.request_parser.pagination"
       - "@hateoas.request_parser.body"
       - "@hateoas.request_parser.action"
@@ -23,6 +24,12 @@ services:
     arguments:
       - "@hateoas.metadata_miner"
       - "%go_integro_hateoas.json_api%"
+
+  hateoas.request_parser.sorting:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\SortingParser
+    public: false
+    arguments:
+      - "@hateoas.metadata_miner"
 
   hateoas.request_parser.pagination:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser
