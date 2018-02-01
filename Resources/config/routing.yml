@@ -4,8 +4,9 @@ muggle:
 
 # Tiene que ir abajo de todo - tiene un action catch-all
 magic_fetch:
-    resource: GoIntegro\Bundle\HateoasBundle\Controller\MagicFetchController
+    resource: '@GoIntegroHateoasBundle/Controller/MagicFetchController.php'
     type: annotation
 magic_alter:
-    resource: GoIntegro\Bundle\HateoasBundle\Controller\MagicAlterController
+    resource: '@GoIntegroHateoasBundle/Controller/MagicAlterController.php'
     type: annotation
+
