@@ -140,7 +140,6 @@ services:
 
   hateoas.entity.builder:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Builder
-    scope: request
 
   hateoas.entity.default_builder:
     class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultBuilder
@@ -154,7 +153,6 @@ services:
 
   hateoas.entity.mutator:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Mutator
-    scope: request
 
   hateoas.entity.default_mutator:
     class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultMutator
